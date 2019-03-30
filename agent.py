@@ -36,14 +36,14 @@ class Agent():
         self.noise_decay = noise_decay
 
         # actors networks
-        self.actor = actor(int(state_size/2), action_size,
+        self.actor = actor(state_size, action_size,
                            low=action_low, high=action_high, seed=self.seed)
-        self.actor_target = actor(int(state_size/2), action_size,
+        self.actor_target = actor(state_size, action_size,
                                   low=action_low, high=action_high, seed=self.seed)
 
         # critic networks
-        self.critic = critic(int(state_size/2), action_size, seed=self.seed)
-        self.critic_target = critic(int(state_size/2), action_size, seed=self.seed)
+        self.critic = critic(state_size, action_size, seed=self.seed)
+        self.critic_target = critic(state_size, action_size, seed=self.seed)
 
         # restore networks if needed
         if restore is not None:

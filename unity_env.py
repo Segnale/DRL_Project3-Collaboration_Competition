@@ -5,7 +5,7 @@ from unityagents import UnityEnvironment
 """Unity Environment Wrapper
 """
 class UnityEnv():
-    def __init__(self, env_file='Tennis_Windows_x86_64/Tennis.exe', no_graphics=False):
+    def __init__(self, env_file='Tennis_Windows_x86_64/Tennis.exe', no_graphics=True):
         self.env = UnityEnvironment(file_name=env_file, no_graphics=no_graphics)
         self.brain_name = self.env.brain_names[0]
         brain = self.env.brains[self.brain_name]
