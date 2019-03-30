@@ -108,8 +108,8 @@ class Agent():
 
         # calculate td target
         with torch.no_grad():
-            y_b = reward_b + self.gamma * \
-             self.critic_target(next_state_b, self.actor_target(next_state_b)) * (1-done_b)
+            y_b = reward_b.unsqueeze(1) + self.gamma * \
+             self.critic_target(next_state_b, self.actor_target(next_state_b)) * (1-done_b.unsqueeze(1))
 
         # update critic
         critic_loss = F.smooth_l1_loss(self.critic(state_b, action_b), y_b)

@@ -19,6 +19,7 @@ def init_replay_buffer(env, agent, steps):
 
 def train(env, agent, episodes, steps):
     scores = deque(maxlen=100)
+    PScores = []
     # writer = SummaryWriter()
     last_saved = 0
     for ep_i in range(episodes):
@@ -40,18 +41,31 @@ def train(env, agent, episodes, steps):
         summary = f'Episode: {ep_i+1}/{episodes}, Steps: {agent.it:d}, Noise: {agent.noise_scale:.2f}, Score Agt. #1: {score[0]:.2f}, Score Agt. #2: {score[1]:.2f}'
         if len(scores) >= 100:
             mean = np.mean(scores)
+            PScores.append(mean)
             summary += f', Score: {mean:.3f}'
             # writer.add_scalar('data/score', mean, ep_i)
             if mean > 0.50 and mean > last_saved:
                 summary += " (saved)"
                 last_saved = mean
-                agent.save('saved_models/tennis_ddpg.ckpt')
+                agent.save('saved/tennis_ddpg.ckpt')
 
         print(summary)
+    
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    df = pd.DataFrame({'score': PScores})
+    # plot the score moving avarages to reduce the noise\n",
+    fig = plt.figure(figsize=[10,5])
+    ax = fig.add_subplot(111)
+    plt.title("Learning")
+    plt.plot(np.arange(len(PScores)), df)
+    plt.ylabel('Score')
+    plt.xlabel('Episode #')
+    plt.show()
 
 if __name__ == '__main__':
     # hyperparameters
-    episodes = 2000
+    episodes = 500
     steps = 2000
 
     # environment 
