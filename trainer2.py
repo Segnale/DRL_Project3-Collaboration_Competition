@@ -65,11 +65,11 @@ def train(env, agent, episodes, steps):
 
 if __name__ == '__main__':
     # hyperparameters
-    episodes = 500
+    episodes = 2000
     steps = 2000
 
     # environment 
-    env = UnityEnv(no_graphics=False)
+    env = UnityEnv(no_graphics=True)
     state_size = env.state_size*2
     action_size = env.action_size*2
 
