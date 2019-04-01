@@ -59,7 +59,7 @@ def train(env, agent, episodes, steps):
             if mean > 0.50 and mean > last_saved:
                 summary += " (saved)"
                 last_saved = mean
-                agent.save('saved/tennis_ddpg.ckpt')
+                agent.save('saved/trained_model.ckpt')
 
         print(summary)
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     steps = 2000
 
     # environment 
-    env = UnityEnv(no_graphics=True)
+    env = UnityEnv(no_graphics=False)
     state_size = env.state_size*2
     action_size = env.action_size*2
 
