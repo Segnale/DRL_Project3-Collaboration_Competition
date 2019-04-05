@@ -29,10 +29,17 @@ def train(env, agent, episodes, steps):
         x_label = 'Episode #',
         x_range = 250,
     )
+    plot.show()
+
+    # Progress bar o terminal
+    import progressbar as pb
+    widget = ['training loop: ', pb.Percentage(), ' ',
+              pb.Bar(), ' ', pb.ETA() ]
+    timer = pb.ProgressBar(widgets=widget, maxval=episodes).start()
 
     # writer = SummaryWriter()
     last_saved = 0
-    for ep_i in range(episodes):
+    for episode in range(episodes):
         agent.reset_episode()
         state = env.reset()
         score = np.zeros(env.num_agents)
@@ -48,27 +55,27 @@ def train(env, agent, episodes, steps):
                 break
         # log episode results
         scores.append(score.max())
-        summary = f'Episode: {ep_i+1}/{episodes}, Steps: {agent.it:d}, Noise: {agent.noise_scale:.2f}, Score Agt. #1: {score[0]:.2f}, Score Agt. #2: {score[1]:.2f}'
-        if len(scores) >= 100:
-            mean = np.mean(scores)
-            PScores.append(mean)
-            if len(scores) == 100: plot.show()
-            plot.Update(list(range(ep_i-(100-2))),PScores)
-            summary += f', Score: {mean:.3f}'
-            # writer.add_scalar('data/score', mean, ep_i)
-            if mean > 0.50 and mean > last_saved:
-                summary += " (saved)"
-                last_saved = mean
-                agent.save('saved/trained_model.ckpt')
-
-        print(summary)
+        mean = np.sum(scores)/100
+        if (episode+1)%50 ==0 :
+            print("Episode: {0:d}, Score: {1:f}".format(episode+1,mean))
+        timer.update(episode+1)
+        #summary = f'Episode: {episode+1}/{episodes}, Steps: {agent.it:d}, Noise: {agent.noise_scale:.2f}, Score Agt. #1: {score[0]:.2f}, Score Agt. #2: {score[1]:.2f}'
+        PScores.append(mean)
+        plot.Update(list(range(episode+1)),PScores)
+        #summary += f', Score: {mean:.3f}'
+        # writer.add_scalar('data/score', mean, ep_i)
+        if mean > 0.50 and mean > last_saved:
+            last_saved = mean
+            agent.save('saved/trained_model.ckpt')
+        
+    timer.finish()
 
     # Save Training Trend
     end_plot = Plotting(
         title ='Learning Process',
         y_label = 'Score',
         x_label = 'Episode #',
-        x_values = list(range(ep_i-(100-2))),
+        x_values = list(range(episode-(100-2))),
         y_values = PScores
     )
     end_plot.save('Results/Training.png')
