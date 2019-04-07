@@ -2,15 +2,13 @@ import torch
 import torch.nn as nn 
 import torch.nn.functional as F
 
-DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-
 class Critic(nn.Module):
-    def __init__(self, state_size, action_size, seed=None):
+    def __init__(self, device, state_size, action_size, seed=None):
         super(Critic, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
         self.seed = seed
-        self.device = torch.device(DEVICE)
+        self.device = torch.device(device)
         if seed is not None:
             torch.manual_seed(seed)
 
@@ -28,14 +26,14 @@ class Critic(nn.Module):
         return self.fc3(x)
 
 class Actor(nn.Module):
-    def __init__(self, state_size, action_size, low=-1.0, high=1.0, seed=None):
+    def __init__(self, device, state_size, action_size, low=-1.0, high=1.0, seed=None):
         super(Actor, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
         self.seed = seed
         self.low = low
         self.high = high
-        self.device = torch.device(DEVICE)
+        self.device = torch.device(device)
         if seed is not None:
             torch.manual_seed(seed)
 

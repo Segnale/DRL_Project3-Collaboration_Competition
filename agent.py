@@ -3,20 +3,17 @@ import torch
 import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
-
+import pdb
 from noise import OUNoise
 from replay_buffer import ReplayBuffer
 
-DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-
 class Agent():
-    def __init__(self, state_size, action_size, actor, critic,
+    def __init__(self, device, state_size, action_size, actor, critic,
                  action_low=-1.0, action_high=1.0,
-                 lrate_critic=10e-3, lrate_actor=10e-4, tau=0.001,
-                 buffer_size=1e5, batch_size=64, gamma=0.99,
+                 lrate_critic=10e-3, lrate_actor=10e-4, tau=0.001, gamma=0.99,
                  exploration_mu=0.0, exploration_theta=0.15, noise_decay=1., 
-                 exploration_sigma=0.20, restore=None, weight_decay=0.,
-                 update_every=1, update_repeat=1, seed=None):
+                 exploration_sigma=0.20, restore_path=None, weight_decay=0., seed=None):
+
         self.state_size = state_size
         self.action_size = action_size
         self.action_low = action_low
@@ -26,32 +23,24 @@ class Agent():
         self.lrate_actor = lrate_actor
         self.tau = tau
         self.gamma = gamma
-        self.restore = restore
-        self.batch_size = int(batch_size)
-        self.buffer_size = int(buffer_size)
-        self.update_every = update_every
-        self.device = torch.device(DEVICE)
+        self.restore_path = restore_path
+        self.device = device
         self.weight_decay = weight_decay
-        self.update_repeat = update_repeat
         self.noise_decay = noise_decay
 
         # actors networks
-        self.actor = actor(state_size, action_size,
+        self.actor = actor(device, state_size, action_size,
                            low=action_low, high=action_high, seed=self.seed)
-        self.actor_target = actor(state_size, action_size,
+        self.actor_target = actor(device, state_size, action_size,
                                   low=action_low, high=action_high, seed=self.seed)
 
         # critic networks
-        self.critic = critic(state_size, action_size, seed=self.seed)
-        self.critic_target = critic(state_size, action_size, seed=self.seed)
+        self.critic = critic(device, state_size, action_size, seed=self.seed)
+        self.critic_target = critic(device, state_size, action_size, seed=self.seed)
 
         # restore networks if needed
-        if restore is not None:
-            checkpoint = torch.load(restore, map_location=DEVICE)
-            self.actor.load_state_dict(checkpoint['actor'])
-            self.actor_target.load_state_dict(checkpoint['actor'])
-            self.critic.load_state_dict(checkpoint['critic'])
-            self.critic_target.load_state_dict(checkpoint['critic'])
+        if restore_path is not None:
+            self.restore(restore_path, True)
 
         # optimizer
         self.actor_opt = optim.Adam(self.actor.parameters(), lr=lrate_actor, weight_decay=self.weight_decay)
@@ -61,9 +50,6 @@ class Agent():
         self.noise = OUNoise(action_size, exploration_mu, exploration_theta, exploration_sigma)
         self.noise_scale = 1.0
 
-        # replay buffer
-        self.replay_buffer = ReplayBuffer(self.device, self.buffer_size, self.batch_size)
-
         # reset agent for training
         self.reset_episode()
         self.it = 0
@@ -72,11 +58,17 @@ class Agent():
         self.noise.reset()
 
     def act(self, state, learn=True):
+
+        if type(state) == 'list':
+            state = np.array(state)
+
         if not learn:
             self.actor.eval()
 
         with torch.no_grad():
             action = self.actor(self.tensor(state)).cpu().numpy()
+        
+        # Add noise when learning for exploration
         if learn:
             action += self.noise.sample() * self.noise_scale
             self.noise_scale = max(self.noise_scale * self.noise_decay, 0.01)
@@ -92,19 +84,23 @@ class Agent():
         params['actor'] = self.actor.state_dict()
         params['critic'] = self.critic.state_dict()
         torch.save(params, path)
+    
+    def restore(self, path, for_Training = False):
+        
+        # Restore only actor for performance
+        checkpoint = torch.load(path, map_location=self.device)
+        self.actor.load_state_dict(checkpoint['actor'])
+        # Restore also for futhert training
+        if for_Training:
+            self.actor_target.load_state_dict(checkpoint['actor'])
+            self.critic.load_state_dict(checkpoint['critic'])
+            self.critic_target.load_state_dict(checkpoint['critic'])
 
-    def step(self, state, action, reward, next_state, done):
-        #pylint: disable=line-too-long
-        self.replay_buffer.add(state, action, reward, next_state, done)
-        self.it += 1
-        if self.it < self.batch_size or self.it % self.update_every != 0:
-            return
-        for _ in range(self.update_repeat):
-            self.learn()
 
-    def learn(self):
+
+    def learn_step(self, replay_buffer):
         # learn from mini-batch of replay buffer
-        state_b, action_b, reward_b, next_state_b, done_b = self.replay_buffer.sample()
+        state_b, action_b, reward_b, next_state_b, done_b = replay_buffer.sample()
 
         # calculate td target
         with torch.no_grad():
@@ -139,4 +135,4 @@ class Agent():
             target_param.data.copy_(self.tau*param.data+(1-self.tau)*target_param.data)
 
     def tensor(self, x):
-        return torch.from_numpy(x).float().to(self.device)
+        return torch.from_numpy(x).float().to(torch.device(self.device))

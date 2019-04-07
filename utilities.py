@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 class Plotting():
-    def __init__(self, title, y_label = 'x axe', x_label = 'x_axe', x_range = None, fig_size = [10,5], x_values =[], y_values = [], show = False):
+    def __init__(self, title, y_label = 'x axe', x_label = 'x_axe', x_range = None, fig_size = [None,None], x_values =[], y_values = [], show = False):
         self.title = title
         self.y_label = y_label
         self.x_label = x_label
@@ -11,7 +11,11 @@ class Plotting():
         self.y_values = y_values
         self.plt = plt
         # Initialize and show the plot
-        self.fig = self.plt.figure(figsize=self.fig_size)
+        if None in fig_size:
+            #self.fig, self.ax = plt.subplots()
+            self.fig = self.plt.figure()
+        else:
+            self.fig = self.plt.figure(figsize=self.fig_size)
         self.fig.canvas.set_window_title(title) 
         self.ax = self.fig.add_subplot(111)
         self.plt.title(self.title)

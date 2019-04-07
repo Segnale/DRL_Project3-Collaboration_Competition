@@ -1,6 +1,7 @@
 import random
 import torch
 from collections import namedtuple, deque
+import pdb
 
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
@@ -29,12 +30,12 @@ class ReplayBuffer:
         """Randomly sample a batch of experiences from memory."""
         samples = random.sample(self.memory, k=self.batch_size)
         states, actions, rewards, next_states, dones = zip(*samples)
-
+        
         states = torch.tensor(states).float().to(self.device)
         actions = torch.tensor(actions).float().to(self.device)
         rewards = torch.tensor(rewards).float().to(self.device)
         next_states = torch.tensor(next_states).float().to(self.device)
-        dones = torch.tensor(dones).float().to(self.device)
+        dones = torch.tensor(list(map(int, dones))).float().to(self.device)
 
         return (states, actions, rewards, next_states, dones)
 
