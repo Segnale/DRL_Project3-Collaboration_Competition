@@ -1,9 +1,9 @@
 import torch
-import torch.nn as nn 
+import torch.nn as nn
 import torch.nn.functional as F
 
 class Critic(nn.Module):
-    def __init__(self, device, state_size, action_size, seed=None):
+    def __init__(self, device, state_size, action_size, fc1_units=256, fc2_units=128, seed=None):
         super(Critic, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
@@ -12,9 +12,9 @@ class Critic(nn.Module):
         if seed is not None:
             torch.manual_seed(seed)
 
-        self.fc1 = nn.Linear(state_size, 256)
-        self.fc2 = nn.Linear(256+action_size, 128)
-        self.fc3 = nn.Linear(128, 1)
+        self.fc1 = nn.Linear(state_size, fc1_units)
+        self.fc2 = nn.Linear(fc1_units + action_size, fc2_units)
+        self.fc3 = nn.Linear(fc2_units, 1)
         self.to(self.device)
 
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
@@ -26,20 +26,21 @@ class Critic(nn.Module):
         return self.fc3(x)
 
 class Actor(nn.Module):
-    def __init__(self, device, state_size, action_size, low=-1.0, high=1.0, seed=None):
+    def __init__(self, device, state_size, action_size, fc1_units=256, fc2_units=256,  low=-1.0, high=1.0, seed=None):
         super(Actor, self).__init__()
         self.state_size = state_size
         self.action_size = action_size
         self.seed = seed
+
         self.low = low
         self.high = high
         self.device = torch.device(device)
         if seed is not None:
             torch.manual_seed(seed)
 
-        self.fc1 = nn.Linear(state_size, 256)
-        self.fc2 = nn.Linear(256, 128)
-        self.fc3 = nn.Linear(128, action_size)
+        self.fc1 = nn.Linear(state_size, fc1_units)
+        self.fc2 = nn.Linear(fc1_units, fc2_units)
+        self.fc3 = nn.Linear(fc2_units, action_size)
         self.to(self.device)
 
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
