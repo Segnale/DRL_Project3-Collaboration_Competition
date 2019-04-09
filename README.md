@@ -1,66 +1,63 @@
 # Deep Reinforcement Learning Project #3 - Collaboration and Competition
 
-This repository contains the implementation of a DQN Algorithm to train a couple of Agent to play the 'tennis' simulation environments from [Unity ML-Agents.](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Installation.md)
-This aim to solve the navigation problem proposed in the Udacity's [Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893) program by preventing the ball to fall.
+This repository contains the implementation of a DDPG Algorithm to train a couple of Agent playing the 'tennis' simulation environments from [Unity ML-Agents.](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Installation.md)
+The project is part of the [Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893).
 
 ---
 
 ## Installation
 
 To run this code, you will need to download the prebuild Unity enviroment not provided in the repository. You need to select the enviroment for your OS:
-* [x Linux](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux.zip)
-* [x Mac OSX](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana.app.zip)
-* [x Windows (32-bits)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Windows_x86.zip)
-* [x Windows (64-bits)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Windows_x86_64.zip)
+* [x Linux](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Linux.zip)
+* [x Mac OSX](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis.app.zip)
+* [x Windows (32-bits)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Windows_x86.zip)
+* [x Windows (64-bits)](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P3/Tennis/Tennis_Windows_x86_64.zip)
 
-Place the file in the DRL_Project#1-Navigation Folder and unzip.
+Place the file in the `DRL_Project3-Collaboration_Competition` Folder and unzip.
 
 Beside the Unity enviroment, Python 3.6 must be available with the Unity ML-Agents [(see this link)](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Installation.md) installed, and few more packages (see `enviroment.env`).
  
 ## Environment 
 
-Two agents compete in the envaironment. Each agent has only 2 continuous actions available:
-- move forward and backward.
-- moving up and down.
+Two agents compete in the tennis envaironment. Each agent has 2 continuous actions available:
+- move forward and backward in the direction of the net.
+- jump up.
 
-Each agent observe a state space of 24 dimensions.
+Each agent observes a state space of 8 dimensions. The observations are hold in sequence of 3.
 
 The Reward function of the Agent can be resumed by:
-- -0.01 when a the ball falls in the field of the agent.
-- +0.1 when the ball is hit by the agent.
-- 0 when the ball is on fly.
+- -0.01 when a the ball falls in the field of the agent or the agent send the ball out of the boundaries.
+- +0.1 when the ball is hit by the agent and sent over the net.
+- 0 in all the other cases.
 
-The task is episodic, and it is considered solved if the agent can get an average score of +0.5 over 100 consecutive episodes.
+The task is episodic, and it is considered solved if one of the two agents can get an average score of +0.5 over 100 consecutive episodes.
  
 ## Instructions
 
 Open `Tennis.ipynb` and run the code alongside with the provided instructions.
-After importing the required packages, the notebook runs in a bunch of steps:
-1. Starting the Unity enviroment and setup the defaul brain to address the agents.
+After importing the required packages, the notebook runs a bunch of steps:
+1. Starting the Unity enviroment and setup the default brain to address the agents.
 2. Analisys of the State and Action Spaces provided by the Unity enviroment.
-3. Random actions in the enviroment to fill the replay buffer (example of the interaction between an agent and the enviroment).
-4. Initial setup of the parameters of the DQN Algorithm to train the agent.
+3. Random actions in the enviroment to fill the replay buffer.
+4. Setup of the DDRL agent and hyperparameters for the train process.
 5. Training of the agent.
 6. See the performance of the trained agents.
 
-The file `my_methods.py` provides the implementation of the DQN algorithm.
-The agent class is included in `dqn_agent.py` while the Deep Neural Network models used by the agent are included in the `model.py`.
+Beside the jupyter notebook, few files are used in the calculations:
+- `agent.py` provides the implementation of the DDRL algorithm and various functions of the agent.
+- `replay_buffer.py`provides the implementation of a class for the replay buffer used by the agent.
+- `noise.py` is an implementation of the Ornstein–Uhlenbeck process.
+- `model.py` includes the neural networks of the actor and critic used by the agent.
+- `utilities.py` contains few classes to support the visualization of the results.
 
 ## ToDo list
-
 Much more stuff can be done to around this project.
 
-### Training Algorithm improvements
-
-This Deep Q-Learning algorithm can be still improved with proved extensions.
-Here the planned implementations:
-1.Prioritized replay
-2.Distributional DQN
+### Code generalization
+Further effort will be spent to generalize the code to make easy moving from an algorithm to another or between environments. That will help on further analysis.
 
 ### Deep Analysis of the Paramenters and Architecture
+Extensive exploration of the results by changing various hyperparameters but also by appling a different algorithm such as other Actor-Critic methods and PPO
 
-Wide analysis of the impact of the training parameters and model architecture on the training performance. For that, I will setup a specific notebook.
-
-### Step to Pixel Based State Space
-
-Use the *Navigation_Pixels.ipynb* and adapt the agent code to solve the banana collection enviroment using raw pixels. That will require mainly the modification of the `model.py` to include convolutional layers.
+### Solve the Soccer Environment
+Use the *Soccer.ipynb* and adapt the same agent code to solve the soccer environment. That will be a nice test to check the agent training algorithm and the validity of the hyperparamenter in different conditions.
