@@ -49,3 +49,10 @@ Beside the jupyter notebook, few files are used in the calculations:
 - `noise.py` is an implementation of the Ornstein–Uhlenbeck process.
 - `model.py` includes the neural networks of the actor and critic used by the agent.
 - `utilities.py` contains few classes to support the visualization of the results.
+
+## Referances
+
+- [Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893)
+- [OpenAI baselines](https://github.com/openai/baselines)
+- [DDPG Paper](https://arxiv.org/abs/1509.02971)
+- [Other usefull repositories](https://github.com/ostamand/tennis)
