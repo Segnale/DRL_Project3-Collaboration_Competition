@@ -1,5 +1,5 @@
 # Deep Reinforcement Learning Project #3 - Report
-Here below are reported the main characteristics of the Reinforcement Learning algprithm.
+Here below are reported the main characteristics of the Reinforcement Learning algorithm used to solve the DRLND <em>Tennis</em> environment.
 
 ## Learning Algorithm
 Considering the nature of the action/state space the selected RL Algorithm was a Deep Deterministic Policy Gradient (DDPG).
